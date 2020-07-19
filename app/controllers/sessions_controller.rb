@@ -1,5 +1,5 @@
 class SessionsController < ApplicationController
-  skip_before_action :require_login, only: %i[login create_session]
+  skip_before_action :require_login, only: [:login, :create_session]
 
   def login; end
 
@@ -9,7 +9,7 @@ class SessionsController < ApplicationController
     account = Account.find_by(account_number: session_params[:account_number])
     if account&.authenticate(session_params[:password])
       set_account_session(account.id)
-      redirect_to '/dashboard'
+      redirect_to '/account/dashboard'
     end
   end
 
