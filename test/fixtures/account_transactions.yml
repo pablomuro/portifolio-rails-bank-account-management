@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  date: 2020-07-18 23:36:13
+  transaction_type: 
+  transaction_value: 9.99
+  account_money_amount: 9.99
+  account: one
+
+two:
+  date: 2020-07-18 23:36:13
+  transaction_type: 
+  transaction_value: 9.99
+  account_money_amount: 9.99
+  account: two
