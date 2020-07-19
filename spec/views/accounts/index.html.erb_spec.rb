@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe "accounts/index", type: :view do
+RSpec.describe 'accounts/index', type: :view do
   before(:each) do
     assign(:accounts, [
       Account.create!(),
@@ -8,7 +8,7 @@ RSpec.describe "accounts/index", type: :view do
     ])
   end
 
-  it "renders a list of accounts" do
+  it 'renders a list of accounts' do
     render
   end
 end

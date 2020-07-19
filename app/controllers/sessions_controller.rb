@@ -3,13 +3,18 @@ class SessionsController < ApplicationController
 
   def login; end
 
-  def logout; end
+  def logout
+    destroy_account_session
+    redirect_to '/login'
+  end
 
   def create_session
     account = Account.find_by(account_number: session_params[:account_number])
     if account&.authenticate(session_params[:password])
       set_account_session(account.id)
       redirect_to '/account/dashboard'
+    else
+      render :login, notice: 'Account number or password invalid'
     end
   end
 

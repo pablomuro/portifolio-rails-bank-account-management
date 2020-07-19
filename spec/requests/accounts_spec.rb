@@ -20,15 +20,6 @@ RSpec.describe '/accounts', type: :request do
     end
   end
 
-  describe 'GET /show' do
-    it 'renders a successful response' do
-      skip('O que a rota de show do accounts faz??')
-      # account = Account.create! valid_attributes
-      # get account_url(account)
-      # expect(response).to be_successful
-    end
-  end
-
   describe 'GET /new' do
     it 'renders a successful response' do
       get new_account_url
