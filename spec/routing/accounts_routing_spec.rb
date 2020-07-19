@@ -3,12 +3,11 @@ require 'rails_helper'
 RSpec.describe AccountsController, type: :routing do
   describe 'routing without authenticate' do
     it 'routes to #login' do
-      resolve('Account') { [:account] }
       expect(get: '/account/dashboard').to route_to('sessions#login')
-      # expect(get: '/account/edit').to route_to('sessions#login')
-      # expect(put: '/account').to route_to('sessions#login')
-      # expect(patch: '/account').to route_to('sessions#login')
-      # expect(delete: '/account').to route_to('sessions#login')
+      expect(get: '/account/edit').to route_to('sessions#login')
+      expect(put: '/account').to route_to('sessions#login')
+      expect(patch: '/account').to route_to('sessions#login')
+      expect(delete: '/account').to route_to('sessions#login')
     end
   end
   describe 'routing' do
