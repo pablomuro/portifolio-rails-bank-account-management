@@ -1,0 +1,12 @@
+<h1>Login</h1>
+
+<%= form_tag '/login' do%>
+    <%= label_tag :account_number%><br>
+    <%= text_field_tag :account_number%><br>
+    <%= label_tag :password%><br>
+    <%= password_field_tag :password%><br>
+
+    <%= submit_tag "Login" %>
+<%end%>
+
+<%= link_to 'New Account', new_account_path %>

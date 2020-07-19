@@ -1,15 +1,9 @@
 class AccountsController < ApplicationController
-  before_action :set_account, only: [:show, :edit, :update, :destroy]
+  before_action :set_account, only: %i[edit update destroy]
+  skip_before_action :require_login, only: %i[new create]
 
-  # GET /accounts
-  # GET /accounts.json
-  def index
-    @accounts = Account.all
-  end
-
-  # GET /accounts/1
-  # GET /accounts/1.json
-  def show
+  def dashboard
+    @account = Account.all
   end
 
   # GET /accounts/new
@@ -18,16 +12,15 @@ class AccountsController < ApplicationController
   end
 
   # GET /accounts/1/edit
-  def edit
-  end
+  def edit; end
 
   # POST /accounts
   # POST /accounts.json
   def create
     @account = Account.new(account_params)
-
     respond_to do |format|
       if @account.save
+        set_account_session(@account.id)
         format.html { redirect_to @account, notice: 'Account was successfully created.' }
         format.json { render :show, status: :created, location: @account }
       else
@@ -63,7 +56,7 @@ class AccountsController < ApplicationController
 
   def transactions
     transactions_list = AccountTransaction.all
-    # TODO- redict to transactionUrl
+    # TODO- redirect to transactionUrl
     # respond_to do |format|
     #   format.html { render: transactions_list, notice: 'Account was successfully destroyed.' }
     #   format.json { render json: transactions_list }
@@ -72,13 +65,14 @@ class AccountsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_account
-      @account = Account.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def account_params
-      params.require(:account).permit(:active, :account_number, :password, :password_confirmation, :money_amount)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_account
+    @account = logged_account
+  end
+
+  # Only allow a list of trusted parameters through.
+  def account_params
+    params.require(:account).permit(:active, :account_number, :password, :password_confirmation, :money_amount)
+  end
 end
