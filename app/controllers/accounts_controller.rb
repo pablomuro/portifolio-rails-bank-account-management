@@ -61,6 +61,16 @@ class AccountsController < ApplicationController
     end
   end
 
+  def transactions
+    transactions_list = AccountTransaction.all
+    # TODO- redict to transactionUrl
+    # respond_to do |format|
+    #   format.html { render: transactions_list, notice: 'Account was successfully destroyed.' }
+    #   format.json { render json: transactions_list }
+    # end
+    format.json { render json: transactions_list }
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_account
