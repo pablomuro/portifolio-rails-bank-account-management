@@ -38,7 +38,7 @@ ActiveRecord::Schema.define(version: 2020_07_19_023613) do
 
   create_table "account_transactions", force: :cascade do |t|
     t.datetime "date"
-    t.integer "transaction_type"
+    t.integer "transaction_type", comment: "0: deposit, 1: withdraw, 2: incoming_transfer, 3: outgoing_transfer"
     t.decimal "transaction_value", precision: 10, scale: 2
     t.decimal "account_money_amount", precision: 10, scale: 2
     t.bigint "account_id", null: false
@@ -48,10 +48,10 @@ ActiveRecord::Schema.define(version: 2020_07_19_023613) do
   end
 
   create_table "accounts", force: :cascade do |t|
-    t.boolean "active"
+    t.boolean "active", null: false
     t.string "account_number", limit: 7
     t.string "password_digest"
-    t.decimal "money_amount", precision: 10, scale: 2
+    t.decimal "money_amount", precision: 10, scale: 2, default: "0.0"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["account_number"], name: "index_accounts_on_account_number", unique: true
