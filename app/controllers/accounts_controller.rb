@@ -97,6 +97,6 @@ class AccountsController < ApplicationController
   end
 
   def transaction_params
-    params.permit(:amount, :account_number)
+    params.permit(:amount, :account_number, :start_date, :end_date)
   end
 end
