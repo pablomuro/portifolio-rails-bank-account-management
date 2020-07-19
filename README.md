@@ -22,3 +22,7 @@ Things you may want to cover:
 * Deployment instructions
 
 * ...
+* bundle install
+* rails db:migrate
+* yarn install
+* rails server
