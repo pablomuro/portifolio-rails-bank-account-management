@@ -1,13 +1,12 @@
 class AccountsController < ApplicationController
   before_action :set_account, only: [:edit, :update, :destroy, :make_deposit, :make_withdraw, :make_transfer, :transactions, :generate_transaction]
   skip_before_action :require_login, only: [:new, :create]
+  before_action :set_transaction_amount, only: [:make_deposit, :make_withdraw, :make_transfer]
   before_action :check_password, only: [:make_withdraw, :make_transfer]
   before_action :check_funds, only: [:make_withdraw, :make_transfer]
   before_action :check_receiver, only: [:make_transfer]
 
-  # TODO - Calcular tarifas
-  def dashboard
-  end
+  def dashboard; end
 
   # GET /accounts/new
   def new
@@ -62,28 +61,24 @@ class AccountsController < ApplicationController
   def deposit; end
 
   def make_deposit
-    amount = transaction_params[:amount]
-    @account.money_amount += amount
-    generate_transaction(AccountTransaction.deposit, amount) if @account.save
+    @account.money_amount += @transaction_amount
+    generate_transaction(AccountTransaction.deposit) if @account.save
   end
 
   def withdraw; end
 
   def make_withdraw
-    amount = transaction_params[:amount]
-    @account.money_amount -= amount
-    generate_transaction(AccountTransaction.withdraw, amount) if @account.save
+    @account.money_amount -= @transaction_amount
+    generate_transaction(AccountTransaction.withdraw) if @account.save
   end
 
   def transfer; end
 
   def make_transfer
-    amount = transaction_params[:amount]
-    @account.money_amount -= amount
-    @receiver_account.money_amount += amount
-
-    generate_transaction(AccountTransaction.incoming_transfer, amount,receiver_account)
-    generate_transaction(AccountTransaction.outgoing_transfer, amount)
+    @account.money_amount -= @transaction_amount + transfer_tax
+    @receiver_account.money_amount += @transaction_amount
+    generate_transaction(AccountTransaction.incoming_transfer, receiver_account)
+    generate_transaction(AccountTransaction.outgoing_transfer)
   end
 
   def transactions
@@ -94,6 +89,10 @@ class AccountsController < ApplicationController
 
   def set_account
     @account = logged_account
+  end
+
+  def set_transaction_amount
+    @transaction_amount = transaction_params[:amount]
   end
 
   def account_params
@@ -117,13 +116,22 @@ class AccountsController < ApplicationController
     redirect_to session_params[:commit], notice: 'Not enough money' unless (@account.money_amount - amount >= 0.0)
   end
 
-  def generate_transaction(transaction_type, amount, account)
+  def transfer_tax
+    now = DateTime.new
+    tax = now.on_weekday? && now.hour >= 9 && now.hour <= 18 ? 5.0 : 7.0
+
+    tax += @transaction_amount > 1000.0 ? 10.0 : 0.0
+
+    return tax
+  end
+
+  def generate_transaction(transaction_type, account)
     account = account || @account
 
     transaction = AccountTransaction.new
     transaction.account_id = account.id
-    transaction.date = new Date
-    transaction.transaction_value = amount
+    transaction.date = Time.current
+    transaction.transaction_value = transaction_type != AccountTransaction.outgoing_transfer ? @transaction_amount : @transaction_amount + transfer_tax
     transaction.account_money_amount = account.money_amount
     transaction.transaction_type = transaction_type
     transaction.save
