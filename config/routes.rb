@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   resources :account, only: [:new, :edit, :create, :update]
 
   scope '/account' do
-    get 'dashboard', to: 'accounts#dashboard'
+    get '/', to: 'accounts#dashboard'
     get 'deposit', to: 'accounts#deposit'
     post 'deposit', to: 'accounts#make_deposit'
     get 'withdraw', to: 'accounts#withdraw'

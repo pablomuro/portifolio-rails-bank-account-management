@@ -12,7 +12,7 @@ class SessionsController < ApplicationController
     account = Account.find_by(account_number: session_params[:account_number])
     if account&.authenticate(session_params[:password])
       set_account_session(account.id)
-      redirect_to '/account/dashboard'
+      redirect_to '/account/'
     else
       render :login, notice: 'Account number or password invalid'
     end
