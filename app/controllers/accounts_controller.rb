@@ -1,16 +1,18 @@
 class AccountsController < ApplicationController
-  before_action :set_account, only: [:edit, :update, :destroy, :make_deposit, :make_withdraw, :make_transfer, :transactions]
+  before_action :set_account, only: [:edit, :update, :destroy, :make_deposit, :make_withdraw, :make_transfer, :transactions, :generate_transaction]
   skip_before_action :require_login, only: [:new, :create]
+  before_action :check_password, only: [:make_withdraw, :make_transfer]
+  before_action :check_funds, only: [:make_withdraw, :make_transfer]
+  before_action :check_receiver, only: [:make_transfer]
 
-  def dashboard; end
-
-  # GET /accounts/new
-  def newmake_transfer
-    @account = Account.new
+  # TODO - Calcular tarifas
+  def dashboard
   end
 
-  # GET /accounts/1/edit
-  def edit; end
+  # GET /accounts/new
+  def new
+    @account = Account.new
+  end
 
   # POST /accounts
   # POST /accounts.json
@@ -28,6 +30,9 @@ class AccountsController < ApplicationController
       end
     end
   end
+
+  # GET /accounts/1/edit
+  def edit; end
 
   # PATCH/PUT /accounts/1
   # PATCH/PUT /accounts/1.json
@@ -54,50 +59,73 @@ class AccountsController < ApplicationController
     end
   end
 
-  def deposit
-  end
+  def deposit; end
 
   def make_deposit
-    amount = transaction_params.amount
+    amount = transaction_params[:amount]
+    @account.money_amount += amount
+    generate_transaction(AccountTransaction.deposit, amount) if @account.save
   end
 
   def withdraw; end
 
   def make_withdraw
-    amount = transaction_params.amount
+    amount = transaction_params[:amount]
+    @account.money_amount -= amount
+    generate_transaction(AccountTransaction.withdraw, amount) if @account.save
   end
 
   def transfer; end
 
   def make_transfer
-    amount = transaction_params.amount
+    amount = transaction_params[:amount]
+    @account.money_amount -= amount
+    @receiver_account.money_amount += amount
+
+    generate_transaction(AccountTransaction.incoming_transfer, amount,receiver_account)
+    generate_transaction(AccountTransaction.outgoing_transfer, amount)
   end
 
   def transactions
-    transactions_list = AccountTransaction.where(account_id: @account.id)
-    # TODO- redirect to transactionUrl
-    # respond_to do |format|
-    #   format.html { render: transactions_list, notice: 'Account was successfully destroyed.' }
-    #   format.json { render json: transactions_list }
-    # end
-    respond_to do |format|
-      format.json { render json: transactions_list}
-    end
+    @transactions_list = AccountTransaction.where(account_id: @account.id)
   end
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_account
     @account = logged_account
   end
 
-  # Only allow a list of trusted parameters through.
   def account_params
     params.require(:account).permit(:active, :account_number, :password, :password_confirmation, :money_amount)
   end
 
   def transaction_params
-    params.permit(:amount, :account_number, :start_date, :end_date)
+    params.permit(:amount, :account_number, :password, :start_date, :end_date, :commit)
+  end
+
+  def check_password
+    redirect_to session_params[:commit], notice: 'Invalid password' unless @account.authenticate(session_params[:password])
+  end
+
+  def check_receiver
+    @receiver_account = Account.find_by(account_number: transaction_params[:account_number])
+    redirect_to :transfer, notice: 'Invalid receiver account number' if @receiver_account.nil?
+  end
+
+  def check_funds(amount)
+    redirect_to session_params[:commit], notice: 'Not enough money' unless (@account.money_amount - amount >= 0.0)
+  end
+
+  def generate_transaction(transaction_type, amount, account)
+    account = account || @account
+
+    transaction = AccountTransaction.new
+    transaction.account_id = account.id
+    transaction.date = new Date
+    transaction.transaction_value = amount
+    transaction.account_money_amount = account.money_amount
+    transaction.transaction_type = transaction_type
+    transaction.save
   end
 end
