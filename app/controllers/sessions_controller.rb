@@ -1,7 +1,9 @@
 class SessionsController < ApplicationController
   skip_before_action :require_login, only: [:login, :create_session]
 
-  def login; end
+  def login
+    redirect_to '/accounts/menu' if logged_in?
+  end
 
   def logout
     destroy_account_session

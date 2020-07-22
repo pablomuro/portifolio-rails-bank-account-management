@@ -19,6 +19,11 @@ RSpec.describe 'Sessions', type: :request do
       expect(response).to be_successful
       expect(response).to render_template('sessions/login')
     end
+    it 'redirect to menu if account is logged in' do
+      log_in_as(account, password)
+      get '/login'
+      expect(response).to redirect_to '/accounts/menu'
+    end
   end
   describe 'POST /login' do
     context 'with valid params' do
