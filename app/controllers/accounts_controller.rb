@@ -5,6 +5,7 @@ class AccountsController < ApplicationController
   before_action :check_password, only: %i[make_withdraw make_transfer]
   before_action :check_funds, only: %i[make_withdraw make_transfer]
   before_action :check_receiver, only: [:make_transfer]
+  before_action :check_same_account, only: [:make_transfer]
 
   def menu; end
 
@@ -42,14 +43,14 @@ class AccountsController < ApplicationController
 
   def make_deposit
     @account.money_amount += @transaction_amount
-    generate_transaction(AccountTransaction.deposit) if @account.save
+    generate_transaction(:deposit, nil) if @account.save
   end
 
   def withdraw; end
 
   def make_withdraw
     @account.money_amount -= @transaction_amount
-    generate_transaction(AccountTransaction.withdraw) if @account.save
+    generate_transaction(:withdraw, nil) if @account.save
   end
 
   def transfer; end
@@ -57,8 +58,10 @@ class AccountsController < ApplicationController
   def make_transfer
     @account.money_amount -= @transaction_amount + transfer_tax
     @receiver_account.money_amount += @transaction_amount
-    generate_transaction(AccountTransaction.incoming_transfer, receiver_account)
-    generate_transaction(AccountTransaction.outgoing_transfer)
+    if @account.save && @receiver_account.save
+      generate_transaction(:incoming_transfer, @receiver_account)
+      generate_transaction(:outgoing_transfer, nil)
+    end
   end
 
   def transactions
@@ -72,11 +75,13 @@ class AccountsController < ApplicationController
   end
 
   def set_transaction_amount
-    @transaction_amount = transaction_params[:amount]
+    @transaction_amount = BigDecimal(transaction_params[:amount])
+    rescue StandardError
+      redirect_to "/accounts/#{transaction_params[:commit]}", notice: 'Invalid amount.'
   end
 
   def account_params
-    params.require(:account).permit(:name, :email, :active, :account_number, :password, :password_confirmation, :money_amount)
+    params.require(:account).permit(:name, :email, :account_number, :password, :password_confirmation)
   end
 
   def update_params
@@ -88,18 +93,22 @@ class AccountsController < ApplicationController
   end
 
   def check_password
-    unless @account.authenticate(session_params[:password])
-      redirect_to session_params[:commit], notice: 'Invalid password'
+    unless @account.authenticate(transaction_params[:password])
+      redirect_to "/accounts/#{transaction_params[:commit]}", notice: 'Invalid password.'
     end
   end
 
   def check_receiver
     @receiver_account = Account.find_by(account_number: transaction_params[:account_number])
-    redirect_to :transfer, notice: 'Invalid receiver account number' if @receiver_account.nil?
+    redirect_to :transfer, notice: 'Invalid receiver account number.' if @receiver_account.nil?
   end
 
-  def check_funds(amount)
-    redirect_to session_params[:commit], notice: 'Not enough money' unless @account.money_amount - amount >= 0.0
+  def check_funds
+    redirect_to "/accounts/#{transaction_params[:commit]}", notice: 'Not enough money.' unless @account.money_amount - @transaction_amount >= 0.0
+  end
+
+  def check_same_account
+    redirect_to "/accounts/#{transaction_params[:commit]}", notice: 'Cannot transfer money to the same account.' unless @account.account_number != transaction_params[:account_number]
   end
 
   def transfer_tax
@@ -112,14 +121,13 @@ class AccountsController < ApplicationController
   end
 
   def generate_transaction(transaction_type, account)
-    account ||= @account
+    account = !account.nil? ? account : @account
 
-    transaction = AccountTransaction.new
+    transaction = AccountTransaction.new(transaction_type: transaction_type)
     transaction.account_id = account.id
     transaction.date = Time.current
-    transaction.transaction_value = transaction_type != AccountTransaction.outgoing_transfer ? @transaction_amount : @transaction_amount + transfer_tax
+    transaction.transaction_value = transaction_type != :outgoing_transfer ? @transaction_amount : @transaction_amount + transfer_tax
     transaction.account_money_amount = account.money_amount
-    transaction.transaction_type = transaction_type
     transaction.save
   end
 end
