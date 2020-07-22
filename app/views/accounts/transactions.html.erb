@@ -15,16 +15,12 @@
   </thead>
 
   <tbody>
-    <% @account_transactions.each do |account_transaction| %>
+    <% @transactions_list.each do |account_transaction| %>
       <tr>
         <td><%= account_transaction.date %></td>
         <td><%= account_transaction.transaction_type %></td>
         <td><%= account_transaction.transaction_value %></td>
         <td><%= account_transaction.account_money_amount %></td>
-        <td><%= account_transaction.account_id %></td>
-        <td><%= link_to 'Show', account_transaction %></td>
-        <td><%= link_to 'Edit', edit_account_transaction_path(account_transaction) %></td>
-        <td><%= link_to 'Destroy', account_transaction, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>
@@ -32,4 +28,4 @@
 
 <br>
 
-<%= link_to 'New Account Transaction', new_account_transaction_path %>
+<%= link_to 'Menu', 'accounts/menu' %>
