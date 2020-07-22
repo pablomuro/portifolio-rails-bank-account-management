@@ -1,9 +1,7 @@
 Rails.application.routes.draw do
-  resolve('Account') { [:account] }
-  resources :account, only: [:new, :edit, :create, :update]
-
-  scope '/account' do
-    get '/', to: 'accounts#dashboard'
+  resources :accounts, only: [:new, :edit, :create, :update, :destroy]
+  scope '/accounts' do
+    get '/menu', to: 'accounts#menu'
     get 'deposit', to: 'accounts#deposit'
     post 'deposit', to: 'accounts#make_deposit'
     get 'withdraw', to: 'accounts#withdraw'

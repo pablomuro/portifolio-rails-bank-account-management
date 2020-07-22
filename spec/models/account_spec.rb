@@ -1,7 +1,5 @@
 require 'rails_helper'
 
-# TODO - Tentar usar FFaker no máximo de casos posiveis
-
 RSpec.describe Account, type: :model do
   let(:account) { build(:account) }
 
