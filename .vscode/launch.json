@@ -12,6 +12,20 @@
             "args": [
                 "server"
             ]
-        }
+        },
+        {
+            "name": "Debug RSpec - open spec file",
+            "type": "Ruby",
+            "request": "launch",
+            "cwd": "${workspaceRoot}",
+            "useBundler": true,
+            "pathToBundler": "/home/pablomuro/.rvm/rubies/ruby-2.6.3/bin/bundle",
+            "pathToRDebugIDE": "/home/pablomuro/.rvm/gems/ruby-2.6.3/bin/rdebug-ide",
+            "debuggerPort": "1235",
+            "program": "/home/pablomuro/.rvm/gems/ruby-2.6.3/bin/rspec",
+            "args": [
+              "${file}"
+            ]
+          },
     ]
 }

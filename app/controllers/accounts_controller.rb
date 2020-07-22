@@ -1,61 +1,41 @@
 class AccountsController < ApplicationController
-  before_action :set_account, only: [:edit, :update, :destroy, :make_deposit, :make_withdraw, :make_transfer, :transactions, :generate_transaction]
-  skip_before_action :require_login, only: [:new, :create]
-  before_action :set_transaction_amount, only: [:make_deposit, :make_withdraw, :make_transfer]
-  before_action :check_password, only: [:make_withdraw, :make_transfer]
-  before_action :check_funds, only: [:make_withdraw, :make_transfer]
+  before_action :set_account, only: %i[edit update destroy make_deposit make_withdraw make_transfer transactions generate_transaction]
+  skip_before_action :require_login, only: %i[new create]
+  before_action :set_transaction_amount, only: %i[make_deposit make_withdraw make_transfer]
+  before_action :check_password, only: %i[make_withdraw make_transfer]
+  before_action :check_funds, only: %i[make_withdraw make_transfer]
   before_action :check_receiver, only: [:make_transfer]
 
-  def dashboard; end
+  def menu; end
 
-  # GET /accounts/new
   def new
     @account = Account.new
   end
 
-  # POST /accounts
-  # POST /accounts.json
   def create
     @account = Account.new(account_params)
     @account.active = true
-    respond_to do |format|
-      if @account.save
-        set_account_session(@account.id)
-        format.html { redirect_to @account, notice: 'Account was successfully created.' }
-        format.json { render :show, status: :created, location: @account }
-      else
-        format.html { render :new }
-        format.json { render json: @account.errors, status: :unprocessable_entity }
-      end
+    if @account.save
+      set_account_session(@account.id)
+      redirect_to '/accounts/menu', notice: 'Account was successfully created.'
+    else
+      render :new
     end
   end
 
-  # GET /accounts/1/edit
   def edit; end
 
-  # PATCH/PUT /accounts/1
-  # PATCH/PUT /accounts/1.json
   def update
-    respond_to do |format|
-      if @account.update(account_params)
-        format.html { redirect_to @account, notice: 'Account was successfully updated.' }
-        format.json { render :show, status: :ok, location: @account }
-      else
-        format.html { render :edit }
-        format.json { render json: @account.errors, status: :unprocessable_entity }
-      end
+    if @account.update(account_params)
+      redirect_to '/accounts/menu', notice: 'Account was successfully updated.'
+    else
+      render :edit
     end
   end
 
-  # DELETE /accounts/1
-  # DELETE /accounts/1.json
   def destroy
-    @account.active = false
-    @account.save
-    respond_to do |format|
-      format.html { redirect_to accounts_url, notice: 'Account was successfully deactivated.' }
-      format.json { head :no_content }
-    end
+    @account.update_attribute(:active, false)
+    redirect_to '/logout'
   end
 
   def deposit; end
@@ -99,12 +79,18 @@ class AccountsController < ApplicationController
     params.require(:account).permit(:active, :account_number, :password, :password_confirmation, :money_amount)
   end
 
+  def update_params
+    params.require(:account).permit(:name, :email)
+  end
+
   def transaction_params
     params.permit(:amount, :account_number, :password, :start_date, :end_date, :commit)
   end
 
   def check_password
-    redirect_to session_params[:commit], notice: 'Invalid password' unless @account.authenticate(session_params[:password])
+    unless @account.authenticate(session_params[:password])
+      redirect_to session_params[:commit], notice: 'Invalid password'
+    end
   end
 
   def check_receiver
@@ -113,7 +99,7 @@ class AccountsController < ApplicationController
   end
 
   def check_funds(amount)
-    redirect_to session_params[:commit], notice: 'Not enough money' unless (@account.money_amount - amount >= 0.0)
+    redirect_to session_params[:commit], notice: 'Not enough money' unless @account.money_amount - amount >= 0.0
   end
 
   def transfer_tax
@@ -122,11 +108,11 @@ class AccountsController < ApplicationController
 
     tax += @transaction_amount > 1000.0 ? 10.0 : 0.0
 
-    return tax
+    tax
   end
 
   def generate_transaction(transaction_type, account)
-    account = account || @account
+    account ||= @account
 
     transaction = AccountTransaction.new
     transaction.account_id = account.id
