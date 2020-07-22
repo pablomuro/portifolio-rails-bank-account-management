@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_19_023613) do
+ActiveRecord::Schema.define(version: 2020_07_22_152630) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -54,6 +54,8 @@ ActiveRecord::Schema.define(version: 2020_07_19_023613) do
     t.decimal "money_amount", precision: 10, scale: 2, default: "0.0"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "name", limit: 50
+    t.string "email", limit: 50
     t.index ["account_number"], name: "index_accounts_on_account_number", unique: true
   end
 

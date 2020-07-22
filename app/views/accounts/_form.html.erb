@@ -12,13 +12,18 @@
   <% end %>
 
   <div class="field">
-    <%= form.label :active %>
-    <%= form.check_box :active %>
+    <%= form.label :account_number %>
+    <%= form.text_field :account_number %>
   </div>
 
   <div class="field">
-    <%= form.label :account_number %>
-    <%= form.text_field :account_number %>
+    <%= form.label :name %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :email %>
+    <%= form.text_field :email %>
   </div>
 
   <div class="field">
@@ -29,11 +34,6 @@
   <div class="field">
     <%= form.label :password_confirmation %>
     <%= form.password_field :password_confirmation %>
-  </div>
-
-  <div class="field">
-    <%= form.label :money_amount %>
-    <%= form.text_field :money_amount %>
   </div>
 
   <div class="actions">

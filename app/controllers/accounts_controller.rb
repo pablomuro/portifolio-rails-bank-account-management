@@ -26,7 +26,7 @@ class AccountsController < ApplicationController
   def edit; end
 
   def update
-    if @account.update(account_params)
+    if @account.update(update_params)
       redirect_to '/accounts/menu', notice: 'Account was successfully updated.'
     else
       render :edit
@@ -76,7 +76,7 @@ class AccountsController < ApplicationController
   end
 
   def account_params
-    params.require(:account).permit(:active, :account_number, :password, :password_confirmation, :money_amount)
+    params.require(:account).permit(:name, :email, :active, :account_number, :password, :password_confirmation, :money_amount)
   end
 
   def update_params
