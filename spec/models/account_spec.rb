@@ -92,6 +92,43 @@ RSpec.describe Account, type: :model do
     end
   end
 
+  context 'name invalid entries' do
+    it 'is invalid if has no name' do
+      account.name = nil
+      expect(account).to_not be_valid
+      expect(account.errors.messages[:name]).to include("can't be blank")
+    end
+    it 'is invalid if name length is less than 3' do
+      account.name = FFaker::Lorem.characters(2)
+      expect(account).to_not be_valid
+      expect(account.errors.messages[:name]).to include('is too short (minimum is 3 characters)')
+    end
+    it 'is invalid if name length is grater than 50' do
+      account.name = FFaker::Lorem.characters(60)
+      expect(account).to_not be_valid
+      expect(account.errors.messages[:name]).to include('is too long (maximum is 50 characters)')
+    end
+  end
+
+  context 'email invalid entries' do
+    it 'is invalid if has no email' do
+      account.email = nil
+      expect(account).to_not be_valid
+      expect(account.errors.messages[:email]).to include("can't be blank")
+    end
+
+    it 'is invalid if email format is wrong' do
+      account.email = 123456
+      expect(account).to_not be_valid
+      expect(account.errors.messages[:email]).to match_array(['invalid email format'])
+      account.email = '@ASse.asas'
+      expect(account).to_not be_valid
+      expect(account.errors.messages[:email]).to match_array(['invalid email format'])
+    end
+
+  end
+  
+
   context 'valid entries' do
     it 'is valid if has no errors' do
       expect(account).to be_valid

@@ -74,8 +74,7 @@ RSpec.describe '/account', type: :request do
   describe 'PATCH /update' do
     context 'with valid parameters' do
       let(:new_attributes) do
-        password = FFaker::Internet.password(6, 16)
-        attributes_for(:account, password: password, password_confirmation: password)
+        attributes_for(:update_account)
       end
 
       it 'updates the requested account' do
@@ -115,6 +114,38 @@ RSpec.describe '/account', type: :request do
     it 'redirects to the login page' do
       delete account_url(logged_account)
       expect(response).to redirect_to('/logout')
+    end
+  end
+
+  describe 'GET /deposit' do
+    it '' do
+    end
+  end
+  describe 'POST /deposit' do
+    it '' do
+    end
+  end
+
+  describe 'GET /withdraw' do
+    it '' do
+    end
+  end
+  describe 'POST /withdraw' do
+    it '' do
+    end
+  end
+
+  describe 'GET /transfer' do
+    it '' do
+    end
+  end
+  describe 'POST /transfer' do
+    it '' do
+    end
+  end
+
+  describe 'GET /transactions' do
+    it '' do
     end
   end
 end
