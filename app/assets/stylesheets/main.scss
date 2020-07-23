@@ -1,24 +1,34 @@
+body{
+  height: 100vh !important;
+}
+
+
 div.field,
 div.actions {
-  margin-bottom: 10px; }
+  margin-bottom: 10px;
+}
 
 #notice {
-  color: green; }
+  color: green;
+}
 
 #alert {
-  color: red; }
+  color: red;
+}
 
 .field_with_errors {
   padding: 2px;
   background-color: red;
-  display: table; }
+  display: table;
+}
 
 #error_explanation {
   width: 450px;
   border: 2px solid red;
   padding: 7px 7px 0;
   margin-bottom: 20px;
-  background-color: #f0f0f0; }
+  background-color: #f0f0f0;
+}
 
 #error_explanation h2 {
   text-align: left;
@@ -27,11 +37,77 @@ div.actions {
   font-size: 12px;
   margin: -7px -7px 0;
   background-color: #c00;
-  color: #fff; }
+  color: #fff;
+}
 
 #error_explanation ul li {
   font-size: 12px;
-  list-style: square; }
+  list-style: square;
+}
 
-label {
-  display: block; }
+#toast-container>div {
+  -webkit-box-shadow: 0 1px 2px 0 rgba(33, 37, 41, .1);
+  box-shadow: 0 1px 2px 0 rgba(33, 37, 41, .1);
+  opacity: 1
+}
+
+#toast-container>div:hover {
+  -webkit-box-shadow: 0 1px 2px 0 rgba(33, 37, 41, .1);
+  box-shadow: 0 1px 2px 0 rgba(33, 37, 41, .1);
+  opacity: .9
+}
+
+.toast-primary {
+  border: 2px solid #3bc0c3 !important;
+  background-color: rgba(59, 192, 195, .8) !important
+}
+
+.toast-secondary {
+  border: 2px solid #6c757d !important;
+  background-color: rgba(108, 117, 125, .8) !important
+}
+
+.toast-success {
+  border: 2px solid #4489e4 !important;
+  background-color: rgba(68, 137, 228, .8) !important
+}
+
+.toast-info {
+  border: 2px solid #33b0e0 !important;
+  background-color: rgba(51, 176, 224, .8) !important
+}
+
+.toast-warning {
+  border: 2px solid #edc755 !important;
+  background-color: rgba(237, 199, 85, .8) !important
+}
+
+.toast-danger {
+  border: 2px solid #d03f3f !important;
+  background-color: rgba(208, 63, 63, .8) !important
+}
+
+.toast-light {
+  border: 2px solid #f3f3f3 !important;
+  background-color: rgba(243, 243, 243, .8) !important
+}
+
+.toast-dark {
+  border: 2px solid #36404c !important;
+  background-color: rgba(54, 64, 76, .8) !important
+}
+
+.toast-purple {
+  border: 2px solid #716cb0 !important;
+  background-color: rgba(113, 108, 176, .8) !important
+}
+
+.toast-pink {
+  border: 2px solid #f24f7c !important;
+  background-color: rgba(242, 79, 124, .8) !important
+}
+
+.toast-error {
+  background-color: rgba(208, 63, 63, .8);
+  border: 2px solid #d03f3f
+}
