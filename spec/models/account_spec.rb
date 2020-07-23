@@ -81,7 +81,7 @@ RSpec.describe Account, type: :model do
     it 'is invalid if account number is less than 0.0' do
       account.money_amount = -FFaker::Random.rand(0...2000)
       expect(account).to_not be_valid
-      expect(account.errors.messages[:money_amount]).to include('must be greater than 0.0')
+      expect(account.errors.messages[:money_amount]).to include('must be greater than or equal to 0.0')
     end
   end
 
