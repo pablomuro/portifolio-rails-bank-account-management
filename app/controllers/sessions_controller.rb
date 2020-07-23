@@ -16,7 +16,7 @@ class SessionsController < ApplicationController
       set_account_session(account.id)
       redirect_to '/accounts/menu'
     else
-      render :login, notice: 'Account number or password invalid'
+      redirect_to '/login', alert: 'Account number or password invalid'
     end
   end
 
