@@ -1,26 +1,25 @@
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="row shortcuts px-4 py-7 justify-content-around">
-                <%= link_to(deposit_url, class: ' shortcut-item') do %>
-                    <span class="shortcut-media avatar rounded-circle bg-gradient-info">
-                        <i class="ni ni-fat-add"></i>
-                    </span>
-                    <small>Deposit</small>
-                <% end %>
-                <%= link_to(withdraw_url, class: ' shortcut-item') do %>
-                    <span class="shortcut-media avatar rounded-circle bg-gradient-green">
-                        <i class="ni ni-fat-delete"></i>
-                    </span>
-                    <small>Withdraw</small>
-                <% end %>
-                <%= link_to(transfer_url, class: ' shortcut-item') do %>
-                    <span class="shortcut-media avatar rounded-circle bg-gradient-purple">
-                        <i class="ni ni-curved-next"></i>
-                    </span>
-                    <small>Transfer</small>
-                <% end %>
-
-            </div>
-        </div>
-    </div>
+<div class="row shortcuts px-4 py-7 justify-content-around">
+<%= link_to(deposit_url, class: ' shortcut-item') do %>
+    <span class="shortcut-media avatar rounded-circle bg-gradient-info">
+        <i class="ni ni-fat-add"></i>
+    </span>
+    <small>Deposit</small>
+<% end %>
+<%= link_to(withdraw_url, class: ' shortcut-item') do %>
+    <span class="shortcut-media avatar rounded-circle bg-gradient-green">
+        <i class="ni ni-fat-delete"></i>
+    </span>
+    <small>Withdraw</small>
+<% end %>
+<%= link_to(transfer_url, class: ' shortcut-item') do %>
+    <span class="shortcut-media avatar rounded-circle bg-gradient-purple">
+        <i class="ni ni-curved-next"></i>
+    </span>
+    <small>Transfer</small>
+<% end %>
+<%= link_to(transactions_url, class: ' shortcut-item') do %>
+    <span class="shortcut-media avatar rounded-circle bg-gradient-purple">
+        <i class="ni ni-bullet-list-67"></i>
+    </span>
+    <small>Transactions</small>
+<% end %>

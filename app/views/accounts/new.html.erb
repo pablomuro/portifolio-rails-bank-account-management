@@ -1,5 +1,9 @@
-<h1>New Account</h1>
-
-<%= render 'form', account: @account %>
-
-<%= link_to 'Back', '/login' %>
+<div class="login-page">
+    <div class="container-fluid pt-4">
+        <h1>NOBE BANK</h1>
+        <div class="card px-5 pb-5 pt-2" style="width: 60%;">
+            <h3 class="text-center pb-3">New Account</h3>
+                <%= render 'form', account: @account %>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+<%= form_with(model: transaction, local: true, url: url_for(controller: 'accounts', action: action_name.downcase)) do |form| %>
+  <% if action_name == 'transfer' %>
+    <div class="form-group">
+      <%= form.label :account_number %>
+      <%= form.text_field(:account_number, class: 'form-control') %>
+      <%= content_tag(:div, transaction.errors[:account_number][0], class: 'invalid-feedback field_with_errors') if transaction.errors[:account_number]%>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :amount %>
+    <%= form.number_field(:amount, step: :any, class: 'form-control') %>
+    <%= content_tag(:div, transaction.errors[:amount][0], class: 'invalid-feedback field_with_errors') if transaction.errors[:amount]%>
+  </div>
+
+  <% if action_name == 'transfer' || action_name == 'withdraw' %>
+    <div class="form-group">
+      <%= form.label :password %>
+      <%= form.password_field(:password, class: 'form-control') %>
+      <%= content_tag(:div, transaction.errors[:password][0], class: 'invalid-feedback field_with_errors') if transaction.errors[:password]%>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= form.submit(action_name.capitalize, class: 'btn btn-primary btn-sm') %>
+  </div>
+<% end %>

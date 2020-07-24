@@ -33,10 +33,17 @@
             </li>
 
             <li class="nav-item">
-            <%= link_to(transfer_url, class: 'nav-link') do %>
-              <i class="ni ni-curved-next text-primary"></i>
-              <span class="nav-link-text">Transfer</span>
-            <% end %>
+              <%= link_to(transfer_url, class: 'nav-link') do %>
+                <i class="ni ni-curved-next text-primary"></i>
+                <span class="nav-link-text">Transfer</span>
+              <% end %>
+            </li>
+
+            <li class="nav-item">
+              <%= link_to(transactions_url, class: 'nav-link') do %>
+                <i class="ni ni-curved-next text-primary"></i>
+                <span class="nav-link-text">Transactions</span>
+              <% end %>
             </li>
             
           </ul>

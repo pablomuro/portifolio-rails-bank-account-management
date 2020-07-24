@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   resources :accounts, only: [:new, :edit, :create, :update, :destroy]
   scope '/accounts' do
-    get '/', to: 'accounts#menu'
+    # get '/', to: 'accounts#menu'
     get '/menu', to: 'accounts#menu', as: :menu
     get 'deposit', to: 'accounts#deposit', as: :deposit
     post 'deposit', to: 'accounts#make_deposit', as: :make_deposit

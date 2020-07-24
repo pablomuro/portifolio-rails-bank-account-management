@@ -1,6 +1,7 @@
 class AccountsController < ApplicationController
   before_action :set_account, only: %i[edit update destroy make_deposit make_withdraw make_transfer transactions generate_transaction]
   skip_before_action :require_login, only: %i[new create]
+  before_action :set_transaction, only: [:deposit, :withdraw, :transfer]
   before_action :set_transaction_amount, only: %i[make_deposit make_withdraw make_transfer]
   before_action :check_password, only: %i[make_withdraw make_transfer]
   before_action :check_funds, only: %i[make_withdraw make_transfer]
@@ -28,7 +29,7 @@ class AccountsController < ApplicationController
   def edit; end
 
   def update
-    if @account.update(update_params)
+    if @account.update_attributes(update_params)
       redirect_to '/accounts/menu', notice: 'Account was successfully updated.'
     else
       render :edit
@@ -44,14 +45,24 @@ class AccountsController < ApplicationController
 
   def make_deposit
     @account.money_amount += @transaction_amount
-    generate_transaction(:deposit, nil) if @account.save
+    if @account.save
+      generate_transaction(:deposit, nil)
+      redirect_to '/accounts/menu', notice: 'Deposit transaction success.'
+    else
+      redirect_to :deposit, alert: 'Deposit transaction fails.'
+    end
   end
 
   def withdraw; end
 
   def make_withdraw
     @account.money_amount -= @transaction_amount
-    generate_transaction(:withdraw, nil) if @account.save
+    if @account.save
+      generate_transaction(:withdraw, nil)
+      redirect_to '/accounts/menu', notice: 'Withdraw transaction success.'
+    else
+      redirect_to :withdraw, alert: 'Withdraw transaction fail.'
+    end
   end
 
   def transfer; end
@@ -59,9 +70,14 @@ class AccountsController < ApplicationController
   def make_transfer
     @account.money_amount -= @transaction_amount + transfer_tax
     @receiver_account.money_amount += @transaction_amount
+    a = 
+    b = 
     if @account.save && @receiver_account.save
       generate_transaction(:incoming_transfer, @receiver_account)
       generate_transaction(:outgoing_transfer, nil)
+      redirect_to '/accounts/menu', notice: 'Transfer transaction success.'
+    else
+      redirect_to :transfer, alert: 'Transfer transaction fail.'
     end
   end
 
@@ -75,10 +91,22 @@ class AccountsController < ApplicationController
     @account = logged_account
   end
 
+  def set_transaction
+    @transaction = Transaction.new
+  end
+
+  def action
+    commit = params.permit(:commit)[:commit].downcase
+  end
+  def commit_redirect
+    commit = action
+    "/accounts/#{commit}"
+  end
+
   def set_transaction_amount
     @transaction_amount = BigDecimal(transaction_params[:amount])
     rescue StandardError
-      redirect_to "/accounts/#{transaction_params[:commit]}", notice: 'Invalid amount.'
+      redirect_to commit_redirect, alert: 'Invalid amount.'
   end
 
   def account_params
@@ -90,26 +118,27 @@ class AccountsController < ApplicationController
   end
 
   def transaction_params
-    params.permit(:amount, :account_number, :password, :start_date, :end_date, :commit)
+    params[:transaction].permit(:amount, :account_number, :password, :start_date, :end_date, :commit)
   end
 
   def check_password
     unless @account.authenticate(transaction_params[:password])
-      redirect_to "/accounts/#{transaction_params[:commit]}", notice: 'Invalid password.'
+      redirect_to commit_redirect, alert: 'Invalid password.'
     end
   end
 
   def check_receiver
     @receiver_account = Account.find_by(account_number: transaction_params[:account_number])
-    redirect_to :transfer, notice: 'Invalid receiver account number.' if @receiver_account.nil?
+    redirect_to :transfer, alert: 'Invalid receiver account number.' if @receiver_account.nil?
   end
 
   def check_funds
-    redirect_to "/accounts/#{transaction_params[:commit]}", notice: 'Not enough money.' unless @account.money_amount - @transaction_amount >= 0.0
+    tax = (action == 'transfer') ? transfer_tax : 0
+    redirect_to commit_redirect, alert: 'Not enough money.' unless @account.money_amount - @transaction_amount - tax >= 0.0
   end
 
   def check_same_account
-    redirect_to "/accounts/#{transaction_params[:commit]}", notice: 'Cannot transfer money to the same account.' unless @account.account_number != transaction_params[:account_number]
+    redirect_to commit_redirect, alert: 'Cannot transfer money to the same account.' unless @account.account_number != transaction_params[:account_number]
   end
 
   def transfer_tax
