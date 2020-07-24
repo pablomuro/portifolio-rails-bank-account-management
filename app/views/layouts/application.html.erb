@@ -2,21 +2,27 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PortifolioRailsBankAccountManagement</title>
+    <title>NOBE BANK</title>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    
   </head>
 
-  <body>
+  <body class="g-sidenav-hidden">
     <% if notice %>
       <p id="notice" style="display: none"><%= notice %></p>
     <% end %>
     <% if alert %>
       <p id="alert" style="display: none"><%= alert %></p>
     <% end %>
-    <%= yield %>
+
+    <% if logged_in? %>
+      <%= render '/layouts/admin-layout'%>
+    <% else %>
+      <%= yield %>
+    <% end %>
   </body>
 </html>
