@@ -70,8 +70,6 @@ class AccountsController < ApplicationController
   def make_transfer
     @account.money_amount -= @transaction_amount + transfer_tax
     @receiver_account.money_amount += @transaction_amount
-    a = 
-    b = 
     if @account.save && @receiver_account.save
       generate_transaction(:incoming_transfer, @receiver_account)
       generate_transaction(:outgoing_transfer, nil)

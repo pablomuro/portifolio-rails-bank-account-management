@@ -27,6 +27,7 @@ RSpec.describe '/account', type: :request do
 
   describe 'GET /new' do
     it 'renders a successful response' do
+      get logout_url
       get new_account_path
       expect(response).to be_successful
       expect(response).to render_template(:new)
@@ -115,13 +116,13 @@ RSpec.describe '/account', type: :request do
 
     it 'redirects to the login page' do
       delete account_url(logged_account)
-      expect(response).to redirect_to('/logout')
+      expect(response).to redirect_to logout_url
     end
   end
 
   describe 'GET /accounts/deposit' do
     it 'renders a successful response' do
-      get '/accounts/deposit'
+      get deposit_url
       expect(response).to be_successful
       expect(response).to render_template(:deposit)
     end
@@ -132,14 +133,15 @@ RSpec.describe '/account', type: :request do
       it 'add money into the account' do
         amount = FFaker::Random.rand(100)
         previous_amount = logged_account.money_amount
-        post '/accounts/deposit', params: { amount: amount }
+        post deposit_url, params: { transaction: { amount: amount } }
         logged_account.reload
+        expect(response).to_not redirect_to deposit_url
         expect(logged_account.money_amount).to be > previous_amount
       end
       it 'creates a new account transaction with type :deposit' do
         amount = FFaker::Random.rand(100)
         expect do
-          post '/accounts/deposit', params: { amount: amount }
+          post deposit_url, params: { transaction: { amount: amount }}
         end.to change(AccountTransaction, :count).by(1)
         last_transaction = AccountTransaction.last
         expect(last_transaction.deposit?).to be true
@@ -151,10 +153,10 @@ RSpec.describe '/account', type: :request do
     context 'with invalid parameters' do
       it "raise error 'Invalid amount'" do
         amount = FFaker::Lorem.characters(6)
-        post '/accounts/deposit', params: { amount: amount, commit: 'deposit' }
+        post deposit_url, params: {  transaction: { amount: amount }, commit: 'deposit' }
         logged_account.reload
-        expect(response).to redirect_to '/accounts/deposit'
-        expect(flash[:notice]).to match('Invalid amount.')
+        expect(response).to redirect_to deposit_url
+        expect(flash[:alert]).to match('Invalid amount.')
       end
     end
   end
@@ -174,7 +176,7 @@ RSpec.describe '/account', type: :request do
         previous_amount = account.money_amount
         withdraw_amount = FFaker::Random.rand(999)
         log_in_as(account, password)
-        post '/accounts/withdraw', params: { amount: withdraw_amount, password: password }
+        post '/accounts/withdraw', params: { transaction: { amount: withdraw_amount, password: password }, commit: 'withdraw' }
         account.reload
         expect(account.money_amount).to be < previous_amount
       end
@@ -184,7 +186,7 @@ RSpec.describe '/account', type: :request do
         withdraw_amount = FFaker::Random.rand(999)
         log_in_as(account, password)
         expect do
-          post '/accounts/withdraw', params: { amount: withdraw_amount, password: password }
+          post '/accounts/withdraw', params: { transaction: { amount: withdraw_amount, password: password }, commit: 'withdraw' }
         end.to change(AccountTransaction, :count).by(1)
         last_transaction = AccountTransaction.last
         expect(last_transaction.withdraw?).to be true
@@ -196,28 +198,28 @@ RSpec.describe '/account', type: :request do
     context 'with invalid parameters' do
       it "raise error 'Invalid amount.' if amount is not a number'" do
         amount = FFaker::Lorem.characters(6)
-        post '/accounts/withdraw', params: { amount: amount, commit: 'withdraw' }
+        post '/accounts/withdraw', params: { transaction: { amount: amount }, commit: 'withdraw' }
         logged_account.reload
         expect(response).to redirect_to '/accounts/withdraw'
-        expect(flash[:notice]).to match('Invalid amount.')
+        expect(flash[:alert]).to match('Invalid amount.')
       end
 
       it "raise error 'Not enough money.' if account money amount is less than withdraw money'" do
         account = create(:account, money_amount: 1000.0, password: password, password_confirmation: password)
         withdraw_amount = FFaker::Random.rand(999) + 1000.0
         log_in_as(account, password)
-        post '/accounts/withdraw', params: { amount: withdraw_amount, password: password, commit: 'withdraw' }
+        post '/accounts/withdraw', params: { transaction: { amount: withdraw_amount, password: password }, commit: 'withdraw' }
         expect(response).to redirect_to '/accounts/withdraw'
-        expect(flash[:notice]).to match('Not enough money.')
+        expect(flash[:alert]).to match('Not enough money.')
       end
 
       it "raise error 'Invalid password.' if password different from logged account password'" do
         account = create(:account, money_amount: 1000.0, password: password, password_confirmation: password)
         withdraw_amount = FFaker::Random.rand(999) + 1000.0
         log_in_as(account, password)
-        post '/accounts/withdraw', params: { amount: withdraw_amount, password: 'wrong_password', commit: 'withdraw' }
+        post '/accounts/withdraw', params: { transaction: { amount: withdraw_amount, password: 'wrong_password' }, commit: 'withdraw' }
         expect(response).to redirect_to '/accounts/withdraw'
-        expect(flash[:notice]).to match('Invalid password.')
+        expect(flash[:alert]).to match('Invalid password.')
       end
     end
   end
@@ -240,7 +242,7 @@ RSpec.describe '/account', type: :request do
         transfer_amount = FFaker::Random.rand(999)
         tax = transfer_tax(transfer_amount)
         log_in_as(account, password)
-        post '/accounts/transfer', params: { amount: transfer_amount, account_number: receiver_account.account_number, password: password, commit: 'transfer' }
+        post '/accounts/transfer', params: { transaction: { amount: transfer_amount, account_number: receiver_account.account_number, password: password }, commit: 'transfer' }
         account.reload
         receiver_account.reload
         expect(account.money_amount).to eq(account_previous_amount - transfer_amount - tax)
@@ -253,7 +255,7 @@ RSpec.describe '/account', type: :request do
         tax = transfer_tax(transfer_amount)
         log_in_as(account, password)
         expect do
-          post '/accounts/transfer', params: { amount: transfer_amount, account_number: receiver_account.account_number, password: password, commit: 'transfer' }
+          post '/accounts/transfer', params: { transaction: { amount: transfer_amount, account_number: receiver_account.account_number, password: password }, commit: 'transfer' }
         end.to change(AccountTransaction, :count).by(2)
 
         outgoing_transaction = AccountTransaction.last
@@ -267,7 +269,7 @@ RSpec.describe '/account', type: :request do
         transfer_amount = FFaker::Random.rand(999)
         log_in_as(account, password)
         expect do
-          post '/accounts/transfer', params: { amount: transfer_amount, account_number: receiver_account.account_number, password: password, commit: 'transfer' }
+          post '/accounts/transfer', params: { transaction: { amount: transfer_amount, account_number: receiver_account.account_number, password: password }, commit: 'transfer' }
         end.to change(AccountTransaction, :count).by(2)
 
         incoming_transaction = AccountTransaction.order(date: :desc).where(account_id: receiver_account.id).take
@@ -282,7 +284,7 @@ RSpec.describe '/account', type: :request do
         transfer_amount = FFaker::Random.rand(999)
         tax = transfer_tax(transfer_amount)
         log_in_as(account, password)
-        post '/accounts/transfer', params: { amount: transfer_amount, account_number: receiver_account.account_number, password: password, commit: 'transfer' }
+        post '/accounts/transfer', params: { transaction: { amount: transfer_amount, account_number: receiver_account.account_number, password: password }, commit: 'transfer' }
         account.reload
         expect(tax).to be > 0
         expect(account.money_amount).to eq(account_previous_amount - transfer_amount - tax)
@@ -292,37 +294,37 @@ RSpec.describe '/account', type: :request do
     context 'with invalid parameters' do
       it "raise error 'Invalid amount.' if amount is not a number'" do
         amount = FFaker::Lorem.characters(6)
-        post '/accounts/transfer', params: { amount: amount, commit: 'transfer' }
+        post '/accounts/transfer', params: { transaction: { amount: amount }, commit: 'transfer' }
         logged_account.reload
         expect(response).to redirect_to '/accounts/transfer'
-        expect(flash[:notice]).to match('Invalid amount.')
+        expect(flash[:alert]).to match('Invalid amount.')
       end
 
       it "raise error 'Not enough money.' if account money amount is less than withdraw money'" do
         account = create(:account, money_amount: 1000.0, password: password, password_confirmation: password)
         transfer_amount = FFaker::Random.rand(999) + 1000.0
         log_in_as(account, password)
-        post '/accounts/transfer', params: { amount: transfer_amount, account_number: receiver_account.account_number, password: password, commit: 'transfer' }
+        post '/accounts/transfer', params: { transaction: { amount: transfer_amount, account_number: receiver_account.account_number, password: password }, commit: 'transfer' }
         expect(response).to redirect_to '/accounts/transfer'
-        expect(flash[:notice]).to match('Not enough money.')
+        expect(flash[:alert]).to match('Not enough money.')
       end
 
       it "raise error 'Invalid password.' if password different from logged account password'" do
         account = create(:account, money_amount: 1000.0, password: password, password_confirmation: password)
         transfer_amount = FFaker::Random.rand(999) + 1000.0
         log_in_as(account, password)
-        post '/accounts/transfer', params: { amount: transfer_amount, account_number: receiver_account.account_number, password: 'wrong_password', commit: 'transfer' }
+        post '/accounts/transfer', params: { transaction: { amount: transfer_amount, account_number: receiver_account.account_number, password: 'wrong_password' }, commit: 'transfer' }
         expect(response).to redirect_to '/accounts/transfer'
-        expect(flash[:notice]).to match('Invalid password.')
+        expect(flash[:alert]).to match('Invalid password.')
       end
 
       it "raise error 'Cannot transfer money to the same account.' if receiver account number is same as logged account'" do
         account = create(:account, money_amount: 1000.0, password: password, password_confirmation: password)
         transfer_amount = FFaker::Random.rand(999)
         log_in_as(account, password)
-        post '/accounts/transfer', params: { amount: transfer_amount, account_number: account.account_number, password: password, commit: 'transfer' }
+        post '/accounts/transfer', params: { transaction: { amount: transfer_amount, account_number: account.account_number, password: password }, commit: 'transfer' }
         expect(response).to redirect_to '/accounts/transfer'
-        expect(flash[:notice]).to match('Cannot transfer money to the same account.')
+        expect(flash[:alert]).to match('Cannot transfer money to the same account.')
       end
     end
   end
