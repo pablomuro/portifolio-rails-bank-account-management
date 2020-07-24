@@ -1,18 +1,26 @@
-
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <!-- Card header -->
-        <div class="card-header border-0">
-            <h3 class="mb-0">Account</h3>
+            <div class="row shortcuts px-4 py-7">
+                <%= link_to(deposit_url, class: 'col-4 shortcut-item') do %>
+                    <span class="shortcut-media avatar rounded-circle bg-gradient-info">
+                        <i class="ni ni-fat-add"></i>
+                    </span>
+                    <small>Deposit</small>
+                <% end %>
+                <%= link_to(withdraw_url, class: 'col-4 shortcut-item') do %>
+                    <span class="shortcut-media avatar rounded-circle bg-gradient-green">
+                        <i class="ni ni-fat-delete"></i>
+                    </span>
+                    <small>Withdraw</small>
+                <% end %>
+                <%= link_to(transfer_url, class: 'col-4 shortcut-item') do %>
+                    <span class="shortcut-media avatar rounded-circle bg-gradient-purple">
+                        <i class="ni ni-curved-next"></i>
+                    </span>
+                    <small>Transfer</small>
+                <% end %>
 
-            <h1>Accounts</h1>
-
-            <h3>Account Menu</h3>
-
-            <br>
-
-            <%= link_to 'New Account', new_account_path %>
+            </div>
         </div>
     </div>
-</div>
