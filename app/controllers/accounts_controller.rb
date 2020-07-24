@@ -10,6 +10,7 @@ class AccountsController < ApplicationController
   def menu; end
 
   def new
+    redirect_to :menu if logged_in?
     @account = Account.new
   end
 
