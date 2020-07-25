@@ -81,7 +81,10 @@ class AccountsController < ApplicationController
   end
 
   def transactions
-    @transactions_list = (can_search) ? AccountTransaction.where(account_id: @account.id, date: Time.parse(params[:start_date])..Time.parse(params[:end_date]) ) : AccountTransaction.where(account_id: @account.id)
+    has_valid_dates = can_search
+    start_date = has_valid_dates ? Time.parse(params.permit(:start_date)[:start_date] + ' 00:00:01') : nil
+    end_date = has_valid_dates ? Time.parse(params.permit(:end_date)[:end_date] + ' 23:59:59') : nil
+    @transactions_list = has_valid_dates ? AccountTransaction.where(account_id: @account.id, date: start_date..end_date) : AccountTransaction.where(account_id: @account.id)
   end
 
   private

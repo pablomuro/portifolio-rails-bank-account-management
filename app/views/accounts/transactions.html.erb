@@ -2,14 +2,14 @@
 <div class="m-7">
   <h1>Account Transactions</h1>
 
-  <%= form_tag transactions_path, method: :get, class: "form-inline" do %>
-    <div class="form-group">
-      <%= label_tag 'Start Date' %>
-      <%= text_field_tag 'start_date', params[:start_date], placeholder: "Start Date", class: "form-control" %>
+  <%= form_tag transactions_path, method: :get, class: "form-inline my-3" do %>
+    <div class="form-group mr-3">
+      <%= label_tag :start_date, 'Start Date', class: 'mr-2' %>
+      <%= date_field_tag 'start_date', params[:start_date], placeholder: "Start Date", class: "form-control" %>
     </div>
-    <div class="form-group">
-      <%= label_tag 'End Date' %>
-      <%= text_field_tag 'end_date', params[:end_date], placeholder: "End Date", class: "form-control" %>
+    <div class="form-group mx-2">
+      <%= label_tag :end_date, 'End Date', class: 'mr-2' %>
+      <%= date_field_tag 'end_date', params[:end_date], placeholder: "End Date", class: "form-control" %>
     </div>
           <%= submit_tag 'Filter', class: 'btn btn-primary btn-sm' %>
   <% end %>
