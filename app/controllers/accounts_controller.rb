@@ -7,6 +7,7 @@ class AccountsController < ApplicationController
   before_action :check_funds, only: %i[make_withdraw make_transfer]
   before_action :check_receiver, only: [:make_transfer]
   before_action :check_same_account, only: [:make_transfer]
+  before_action :can_search, only: [:transactions]
 
   def menu; end
 
@@ -80,7 +81,7 @@ class AccountsController < ApplicationController
   end
 
   def transactions
-    @transactions_list = AccountTransaction.where(account_id: @account.id)
+    @transactions_list = (can_search) ? AccountTransaction.where(account_id: @account.id, date: Time.parse(params[:start_date])..Time.parse(params[:end_date]) ) : AccountTransaction.where(account_id: @account.id)
   end
 
   private
@@ -157,5 +158,14 @@ class AccountsController < ApplicationController
     transaction.transaction_value = transaction_type != :outgoing_transfer ? @transaction_amount : @transaction_amount + transfer_tax
     transaction.account_money_amount = account.money_amount
     transaction.save
+  end
+
+  def can_search
+    is_valid_date = false
+    return unless (params[:start_date].present? && params[:end_date].present?)
+    is_valid_date = (Time.parse(params[:start_date]) rescue nil).present? && (Time.parse(params[:end_date]) rescue nil).present?
+    if is_valid_date
+      is_valid_date = Time.parse(params[:start_date]) < Time.parse(params[:end_date])
+    end
   end
 end
