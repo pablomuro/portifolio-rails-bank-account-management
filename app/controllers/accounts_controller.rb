@@ -20,7 +20,7 @@ class AccountsController < ApplicationController
     @account.active = true
     if @account.save
       set_account_session(@account.id)
-      redirect_to '/accounts/menu', notice: 'Account was successfully created.'
+      redirect_to menu_url, notice: 'Account was successfully created.'
     else
       render :new
     end
@@ -29,8 +29,8 @@ class AccountsController < ApplicationController
   def edit; end
 
   def update
-    if @account.update_attributes(update_params)
-      redirect_to '/accounts/menu', notice: 'Account was successfully updated.'
+    if @account.update(update_params)
+      redirect_to menu_url, notice: 'Account was successfully updated.'
     else
       render :edit
     end
@@ -38,7 +38,7 @@ class AccountsController < ApplicationController
 
   def destroy
     @account.update_attribute(:active, false)
-    redirect_to '/logout'
+    redirect_to logout_url
   end
 
   def deposit; end
@@ -47,7 +47,7 @@ class AccountsController < ApplicationController
     @account.money_amount += @transaction_amount
     if @account.save
       generate_transaction(:deposit, nil)
-      redirect_to '/accounts/menu', notice: 'Deposit transaction success.'
+      redirect_to menu_url, notice: 'Deposit transaction success.'
     else
       redirect_to :deposit, alert: 'Deposit transaction fails.'
     end
@@ -59,7 +59,7 @@ class AccountsController < ApplicationController
     @account.money_amount -= @transaction_amount
     if @account.save
       generate_transaction(:withdraw, nil)
-      redirect_to '/accounts/menu', notice: 'Withdraw transaction success.'
+      redirect_to menu_url, notice: 'Withdraw transaction success.'
     else
       redirect_to :withdraw, alert: 'Withdraw transaction fail.'
     end
@@ -73,7 +73,7 @@ class AccountsController < ApplicationController
     if @account.save && @receiver_account.save
       generate_transaction(:incoming_transfer, @receiver_account)
       generate_transaction(:outgoing_transfer, nil)
-      redirect_to '/accounts/menu', notice: 'Transfer transaction success.'
+      redirect_to menu_url, notice: 'Transfer transaction success.'
     else
       redirect_to :transfer, alert: 'Transfer transaction fail.'
     end

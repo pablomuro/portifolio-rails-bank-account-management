@@ -54,7 +54,7 @@ RSpec.describe '/account', type: :request do
 
       it 'redirects to the menu' do
         post accounts_url, params: { account: valid_attributes }
-        expect(response).to redirect_to('/accounts/menu')
+        expect(response).to redirect_to(menu_url)
         expect(flash[:notice]).to match('Account was successfully created.')
       end
     end
@@ -92,7 +92,7 @@ RSpec.describe '/account', type: :request do
         account = Account.create! valid_attributes
         log_in_as(account, valid_attributes[:password])
         patch account_url(account), params: { account: new_attributes }
-        expect(response).to redirect_to('/accounts/menu')
+        expect(response).to redirect_to(menu_url)
         expect(flash[:notice]).to match('Account was successfully updated.')
       end
     end
