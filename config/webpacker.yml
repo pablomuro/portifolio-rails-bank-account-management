@@ -4,7 +4,7 @@ default: &default
   source_path: app/assets
   source_entry_path: javascript
   public_root_path: public
-  public_output_path: javascript
+  public_output_path: assets/javascript
   cache_path: tmp/cache/webpacker
   check_yarn_integrity: false
   webpack_compile_output: true
